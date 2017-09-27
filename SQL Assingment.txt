@@ -1,0 +1,83 @@
+2. spectabilis_population_data
+SELECT year, month, day, sex
+FROM surveys
+WHERE species_id == "DS";
+
+spectabilis_population_data_males
+SELECT year, month, day
+FROM surveys
+WHERE species_id == "DS" AND sex == "M";
+
+spectabilis_population_data_females
+SELECT year, month, day
+FROM surveys
+WHERE species_id == "DS" AND sex == "F";
+
+3. 100_ largest_individuals
+SELECT species_id, year, weight
+FROM surveys
+ORDER by weight DESC, hindfoot_length, year 
+LIMIT 100;
+
+4. dates_with_dipodomys_spectabilis
+SELECT DISTINCT year, month, day
+FROM surveys;
+
+5. no_missing_data
+SELECT year, month, day, species_id, weight
+FROM surveys
+WHERE year IS NOT NULL AND month IS NOT NULL AND day IS NOT NULL AND species_id IS NOT NULL AND weight IS NOT NULL
+
+6. dates_with_dipodomys_spectabilis
+SELECT DISTINCt year, month, day
+FROM surveys 
+WHERE species_id == "DS"
+ORDER BY year AND month AND day;
+
+7. total_abundance_by_year
+SELECT year,
+COUNT (species_id) AS 'total_abundance'
+ORDER BY year;
+
+8. mass_abundance_data
+SELECT species_id, year, COUNT (*) AS total_abundance, ROUND(sum(weight/1000),3) AS total_biomass_kg
+FROM surveys
+GROUP BY weight
+ORDER BY year ASC;
+
+9. species_captures_by_data
+SELECT year, month, day, genus, species
+FROM surveys
+JOIN species
+ON surveys.species_id = species.species_id;
+
+10. species_plot_data
+SELECT surveys.year, surveys.month, surveys.day, species.species, species. genus, plots.plot_type, surveys.plot_id
+FROM surveys
+JOIN plots ON surveys.plot_id = plots.plot_id
+JOIN species ON surveys.species_id = species.species_id;
+
+11. non_rodents_on_controls
+SELECT species.genus, species.species, species.taxa
+FROM species
+JOIN plots
+ON plots.plot_id = surveys.plot_id
+JOIN surveys
+ON species.species_id = surveys.species_id 
+WHERE taxa != 'Rodent' AND plot_type = 'Control' 
+GROUP BY species.species_id;
+
+12. size_comparison_controls_vs_krat_exclosures
+SELECT surveys.year, species.genus, surveys.species_id, surveys.weight, plots.plot_type
+FROM species
+JOIN plots ON plots.plot_id = surveys.plot_id
+JOIN surveys ON species.species_id = surveys.species_id
+WHERE (plot_type = 'Long-term Krat Exclosure' OR plot_type = "Control") AND (taxa = 'Rodent' AND species.species_id != 'species' AND weight > 0);
+
+13.individuals_per_plot_type
+SELECT plot_type, COUNT(*) AS individuals_sampled 
+FROM surveys
+JOIN plots ON surveys.plot_id = plots.plot_id
+JOIN species ON surveys.species_id = species.species_id
+WHERE species.taxa = 'Rodent' 
+GROUP BY plot_type;
